@@ -175,8 +175,8 @@ typedef enum
  */
 enum
 {
-    PHY_MAX_TX_LENGTH = 125,
-    PHY_MAX_RX_LENGTH = 127,
+    PHY_MAX_TX_LENGTH = 50,
+    PHY_MAX_RX_LENGTH = 50,
 
     PHY_868_MIN_CHANNEL = 0,
     PHY_868_MAX_CHANNEL = 0,

@@ -21,7 +21,7 @@
 #include "iotlab_uid_num_hashtable.h"
 
 // choose channel in [11-26]
-#define CHANNEL 11
+#define CHANNEL 20
 #define RADIO_POWER PHY_POWER_0dBm
 
 #define ADDR_BROADCAST 0xFFFF
@@ -29,6 +29,8 @@
 // UART callback function
 static void char_rx(handler_arg_t arg, uint8_t c);
 static void handle_cmd(handler_arg_t arg);
+static void switch_channel();
+static void switch_power();
 
 // timer alarm function
 static void alarm(handler_arg_t arg);
@@ -39,6 +41,8 @@ static soft_timer_t tx_timer;
 // print help every second
 volatile int8_t print_help  = 1;
 volatile int8_t leds_active = 1;
+volatile uint8_t channel = CHANNEL;
+volatile uint8_t radio_power = RADIO_POWER;
 
 
 #ifdef IOTLAB_M3
@@ -185,6 +189,33 @@ static void leds_action()
     }
 }
 
+/**
+ * Leds action
+ */
+static void switch_channel()
+{
+  if (channel > 25)
+      channel = 11;
+  else
+      channel = channel + 1;
+  printf("Switch to channel: c=%u pw=%u", channel, radio_power);
+  mac_csma_init(channel, radio_power);
+  printf("Success\n");
+}
+
+/**
+ * Leds action
+ */
+static void switch_power()
+{
+  if (radio_power > 29)
+      radio_power = 0;
+  else
+      radio_power = radio_power + 1;
+  printf("Switch to radio_power: c=%u pw=%u", channel, radio_power);
+  mac_csma_init(channel, radio_power);
+  printf("Success\n");
+}
 
 /*
  * HELP
@@ -198,6 +229,9 @@ static void print_usage()
     printf("\tt:\ttemperature measure\n");
     printf("\tl:\tluminosity measure\n");
     printf("\tp:\tpressure measure\n");
+    printf("\tc:\tchange channel\n");
+    printf("\tw:\tchange radio power\n");
+
 #endif
     printf("\tu:\tprint node uid\n");
     printf("\td:\tread current date using control_node\n");
@@ -257,6 +291,12 @@ static void handle_cmd(handler_arg_t arg)
             break;
         case 'p':
             pressure_sensor();
+            break;
+        case 'c':
+            switch_channel();
+            break;
+        case 'w':
+            switch_power();
             break;
 #endif
         case 'u':
